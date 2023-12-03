@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"os"
 )
 
 type Config struct {
@@ -34,53 +33,60 @@ type Responses struct {
 }
 
 func Init() (*Config, error) {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("main")
-
-	if err := viper.ReadInConfig(); err != nil {
+	if err := setUpViper(); err != nil {
 		return nil, err
 	}
 
 	var cfg Config
-
-	if err := viper.Unmarshal(&cfg); err != nil {
+	if err := unmarshal(&cfg); err != nil {
 		return nil, err
 	}
 
-	if err := viper.UnmarshalKey("messages.responses", &cfg.Messages.Responses); err != nil {
-		return nil, err
-	}
-
-	if err := viper.UnmarshalKey("messages.errors", &cfg.Messages.Errors); err != nil {
-		return nil, err
-	}
-
-	if err := parseEnv(&cfg); err != nil {
+	if err := fromEnv(&cfg); err != nil {
 		return nil, err
 	}
 
 	return &cfg, nil
 }
 
-func parseEnv(cfg *Config) error {
-	os.Setenv("TOKEN", "6401370925:AAFUGSUsUmeSgTiRyTD26CorDOlTJKWGnvw")
-	os.Setenv("CONSUMER_KEY", "108912-9b9411248d5804b75b3bced")
-	os.Setenv("AUTH_SERVER_URL", "http://localhost/")
+func unmarshal(cfg *Config) error {
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("messages.response", &cfg.Messages.Responses); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("messages.error", &cfg.Messages.Errors); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func fromEnv(cfg *Config) error {
 	if err := viper.BindEnv("token"); err != nil {
 		return err
 	}
+	cfg.TelegramToken = viper.GetString("token")
 
 	if err := viper.BindEnv("consumer_key"); err != nil {
 		return err
 	}
+	cfg.PocketConsumerKey = viper.GetString("consumer_key")
 
 	if err := viper.BindEnv("auth_server_url"); err != nil {
 		return err
 	}
-
-	cfg.TelegramToken = viper.GetString("token")
-	cfg.PocketConsumerKey = viper.GetString("consumer_key")
 	cfg.AuthServerURL = viper.GetString("auth_server_url")
 
 	return nil
+}
+
+func setUpViper() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("main")
+
+	return viper.ReadInConfig()
 }
