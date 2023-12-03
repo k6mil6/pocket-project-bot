@@ -1,0 +1,15 @@
+db_file: "bot.db"
+
+bot_url: "https://t.me/pocket_project_bot"
+
+messages:
+  responses:
+    start: "Привет! Для сохранения ссылок нужно дать согласие по ссылке:\n%s"
+    already_authorised: "Ты уже авторизирован! Присылай ссылку, я ее сохраню"
+    saved_successfully: "Ссылка успешно сохранена!"
+    unknown_command: "Неизвестная команда"
+  errors:
+    default: "Произошла неизвестная ошибка"
+    invalid_url: "Это невалидная ссылка"
+    unauthorised: "Ты не авторизирован! Используй команду /start"
+    unable_to_save: "Не удалось сохранить ссылку, попробуй позже"
